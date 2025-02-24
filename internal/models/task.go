@@ -5,7 +5,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/go-xorm/xorm"
+	"xorm.io/xorm"
 )
 
 type TaskProtocol int8
@@ -95,7 +95,7 @@ func (task *Task) Update(id int, data CommonMap) (int64, error) {
 
 // 删除
 func (task *Task) Delete(id int) (int64, error) {
-	return Db.Id(id).Delete(task)
+	return Db.ID(id).Delete(task)
 }
 
 // 禁用
@@ -170,7 +170,7 @@ func (task *Task) NameExist(name string, id int) (bool, error) {
 }
 
 func (task *Task) GetStatus(id int) (Status, error) {
-	exist, err := Db.Id(id).Get(task)
+	exist, err := Db.ID(id).Get(task)
 	if err != nil {
 		return 0, err
 	}

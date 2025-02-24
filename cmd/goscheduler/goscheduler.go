@@ -17,7 +17,7 @@ import (
 	"github.com/gaggad/goscheduler/internal/routers"
 	"github.com/gaggad/goscheduler/internal/service"
 	"github.com/gaggad/goscheduler/internal/util"
-	"github.com/urfave/cli"
+	"github.com/urfave/cli/v2"
 )
 
 var (
@@ -29,7 +29,7 @@ var (
 const DefaultPort = 5920
 
 func main() {
-	cliApp := cli.NewApp()
+	cliApp := &cli.App{}
 	cliApp.Name = "goscheduler"
 	cliApp.Usage = "goscheduler service"
 	cliApp.Version, _ = util.FormatAppVersion(AppVersion, GitCommit, BuildDate)
@@ -42,34 +42,36 @@ func main() {
 }
 
 // getCommands
-func getCommands() []cli.Command {
-	command := cli.Command{
+func getCommands() []*cli.Command {
+	command := &cli.Command{
 		Name:   "web",
 		Usage:  "run web server",
 		Action: runWeb,
 		Flags: []cli.Flag{
-			cli.StringFlag{
+			&cli.StringFlag{
 				Name:  "host",
 				Value: "0.0.0.0",
 				Usage: "bind host",
 			},
-			cli.IntFlag{
-				Name:  "port,p",
+			&cli.IntFlag{
+				Name:  "port",
+				Aliases: []string{"p"},
 				Value: DefaultPort,
 				Usage: "bind port",
 			},
-			cli.StringFlag{
-				Name:  "env,e",
+			&cli.StringFlag{
+				Name:  "env",
+				Aliases: []string{"e"},
 				Value: "prod",
 				Usage: "runtime environment, dev|test|prod",
 			},
 		},
 	}
 
-	return []cli.Command{command}
+	return []*cli.Command{command}
 }
 
-func runWeb(ctx *cli.Context) {
+func runWeb(ctx *cli.Context) error {
 	// 设置运行环境
 	setEnvironment(ctx)
 	// 初始化应用
@@ -86,6 +88,7 @@ func runWeb(ctx *cli.Context) {
 	host := parseHost(ctx)
 	port := parsePort(ctx)
 	m.Run(host, port)
+	return nil
 }
 
 func initModule() {

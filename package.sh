@@ -33,7 +33,7 @@ DEFAULT_ARCH=${GOHOSTARCH}
 # 支持的系统
 SUPPORT_OS=(linux darwin windows)
 # 支持的架构
-SUPPORT_ARCH=(386 amd64)
+SUPPORT_ARCH=(386 amd64 arm64)
  
 # 编译参数
 LDFLAGS=''

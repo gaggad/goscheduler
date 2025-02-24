@@ -48,12 +48,12 @@ func Read(filename string) (*Setting, error) {
 
 	var s Setting
 
-	s.Db.Engine = section.Key("db.engine").MustString("mysql")
+	s.Db.Engine = section.Key("db.engine").MustString("mysql") // 支持 mysql, postgres, sqlite3
 	s.Db.Host = section.Key("db.host").MustString("127.0.0.1")
 	s.Db.Port = section.Key("db.port").MustInt(3306)
 	s.Db.User = section.Key("db.user").MustString("")
 	s.Db.Password = section.Key("db.password").MustString("")
-	s.Db.Database = section.Key("db.database").MustString("goscheduler")
+	s.Db.Database = section.Key("db.database").MustString("goscheduler") // SQLite3时作为数据库文件路径
 	s.Db.Prefix = section.Key("db.prefix").MustString("")
 	s.Db.Charset = section.Key("db.charset").MustString("utf8")
 	s.Db.MaxIdleConns = section.Key("db.max.idle.conns").MustInt(30)

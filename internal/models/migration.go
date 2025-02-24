@@ -6,7 +6,7 @@ import (
 	"strconv"
 
 	"github.com/gaggad/goscheduler/internal/modules/logger"
-	"github.com/go-xorm/xorm"
+	"xorm.io/xorm"
 )
 
 type Migration struct{}

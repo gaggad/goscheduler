@@ -11,9 +11,11 @@ import (
 	"github.com/gaggad/goscheduler/internal/modules/logger"
 	"github.com/gaggad/goscheduler/internal/modules/setting"
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/go-xorm/core"
-	"github.com/go-xorm/xorm"
 	_ "github.com/lib/pq"
+	_ "github.com/mattn/go-sqlite3"
+	"xorm.io/core"
+	"xorm.io/xorm"
+	"xorm.io/xorm/log"
 )
 
 type Status int8
@@ -90,7 +92,7 @@ func CreateDb() *xorm.Engine {
 	// 本地环境开启日志
 	if macaron.Env == macaron.DEV {
 		engine.ShowSQL(true)
-		engine.Logger().SetLevel(core.LOG_DEBUG)
+		engine.Logger().SetLevel(log.LOG_DEBUG)
 	}
 
 	go keepDbAlived(engine)
@@ -119,12 +121,14 @@ func getDbEngineDSN(setting *setting.Setting) string {
 			setting.Db.Database,
 			setting.Db.Charset)
 	case "postgres":
-		dsn = fmt.Sprintf("user=%s password=%s host=%s port=%d dbname=%s sslmode=disable",
-			setting.Db.User,
-			setting.Db.Password,
+		dsn = fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
 			setting.Db.Host,
 			setting.Db.Port,
+			setting.Db.User,
+			setting.Db.Password,
 			setting.Db.Database)
+	case "sqlite3":
+		dsn = fmt.Sprintf("%s", setting.Db.Database)
 	}
 
 	return dsn

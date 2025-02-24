@@ -20,11 +20,11 @@ import (
 // 系统安装
 
 type InstallForm struct {
-	DbType               string `binding:"In(mysql,postgres)"`
-	DbHost               string `binding:"Required;MaxSize(50)"`
-	DbPort               int    `binding:"Required;Range(1,65535)"`
-	DbUsername           string `binding:"Required;MaxSize(50)"`
-	DbPassword           string `binding:"Required;MaxSize(30)"`
+	DbType               string `binding:"In(mysql,postgres,sqlite3)"` // 添加sqlite3选项
+	DbHost               string `binding:"MaxSize(50)"`                // 移除Required
+	DbPort               int    `binding:"Range(0,65535)"`             // 移除Required
+	DbUsername           string `binding:"MaxSize(50)"`                // 移除Required
+	DbPassword           string `binding:"MaxSize(30)"`                // 移除Required
 	DbName               string `binding:"Required;MaxSize(50)"`
 	DbTablePrefix        string `binding:"MaxSize(20)"`
 	AdminUsername        string `binding:"Required;MinSize(3)"`
@@ -99,13 +99,17 @@ func Store(ctx *macaron.Context, form InstallForm) string {
 
 // 配置写入文件
 func writeConfig(form InstallForm) error {
+	dbName := form.DbName
+	if form.DbType == "sqlite3" {
+		dbName = "data.db"
+	}
 	dbConfig := []string{
 		"db.engine", form.DbType,
 		"db.host", form.DbHost,
 		"db.port", strconv.Itoa(form.DbPort),
 		"db.user", form.DbUsername,
 		"db.password", form.DbPassword,
-		"db.database", form.DbName,
+		"db.database", dbName,
 		"db.prefix", form.DbTablePrefix,
 		"db.charset", "utf8",
 		"db.max.idle.conns", "5",
@@ -141,11 +145,15 @@ func createAdminUser(form InstallForm) error {
 func testDbConnection(form InstallForm) error {
 	var s setting.Setting
 	s.Db.Engine = form.DbType
-	s.Db.Host = form.DbHost
-	s.Db.Port = form.DbPort
-	s.Db.User = form.DbUsername
-	s.Db.Password = form.DbPassword
-	s.Db.Database = form.DbName
+	if form.DbType == "sqlite3" {
+		s.Db.Database = "data.db"
+	} else {
+		s.Db.Host = form.DbHost
+		s.Db.Port = form.DbPort
+		s.Db.User = form.DbUsername
+		s.Db.Password = form.DbPassword
+		s.Db.Database = form.DbName
+	}
 	s.Db.Charset = "utf8"
 	db, err := models.CreateTmpDb(&s)
 	if err != nil {
@@ -169,6 +177,12 @@ func testDbConnection(form InstallForm) error {
 		return err
 	}
 
-	return err
+	if s.Db.Engine == "sqlite3" {
+		// SQLite数据库文件不存在时会自动创建
+		if err != nil {
+			return errors.New("SQLite数据库连接失败: " + err.Error())
+		}
+	}
 
+	return err
 }

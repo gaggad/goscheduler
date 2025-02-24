@@ -131,7 +131,7 @@ docker run --name goscheduler --link mysql:db -p 5920:5920 -d gaggad/goscheduler
 ## 程序使用的组件
 * Web框架 [Macaron](http://go-macaron.com/)
 * 定时任务调度 [Cron](https://github.com/robfig/cron)
-* ORM [Xorm](https://github.com/go-xorm/xorm)
+* ORM [Xorm](https://xorm.io)
 * UI框架 [Element UI](https://github.com/ElemeFE/element)
 * 依赖管理 [Govendor](https://github.com/kardianos/govendor)
 * RPC框架 [gRPC](https://github.com/grpc/grpc)

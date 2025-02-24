@@ -50,7 +50,7 @@ func (user *User) UpdatePassword(id int, password string) (int64, error) {
 
 // 删除
 func (user *User) Delete(id int) (int64, error) {
-	return Db.Id(id).Delete(user)
+	return Db.ID(id).Delete(user)
 }
 
 // 禁用
@@ -77,7 +77,7 @@ func (user *User) Match(username, password string) bool {
 
 // 获取用户详情
 func (user *User) Find(id int) error {
-	_, err := Db.Id(id).Get(user)
+	_, err := Db.ID(id).Get(user)
 
 	return err
 }

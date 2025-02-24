@@ -38,3 +38,5 @@ profile/*
 /goscheduler-node-package
 
 node_modules
+data.db
+.vscode

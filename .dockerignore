@@ -1,2 +1,4 @@
 .git
 web/vue/node_modules
+data.db
+.vscode

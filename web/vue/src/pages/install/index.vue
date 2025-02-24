@@ -5,41 +5,37 @@
         <h3>数据库配置</h3>
         <el-form-item label="数据库选择" prop="db_type">
           <el-select v-model.trim="form.db_type" @change="update_port">
-            <el-option
-              v-for="item in dbList"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value">
+            <el-option v-for="item in dbList" :key="item.value" :label="item.label" :value="item.value">
             </el-option>
           </el-select>
         </el-form-item>
         <el-row>
           <el-col :span="12">
-            <el-form-item label="主机名" prop="db_host">
+            <el-form-item label="主机名" prop="db_host" v-if="form.db_type !== 'sqlite3'">
               <el-input v-model="form.db_host"></el-input>
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="端口" prop="db_port">
+            <el-form-item label="端口" prop="db_port" v-if="form.db_type !== 'sqlite3'">
               <el-input v-model.number="form.db_port"></el-input>
             </el-form-item>
           </el-col>
         </el-row>
         <el-row>
           <el-col :span="12">
-            <el-form-item label="用户名" prop="db_username">
+            <el-form-item label="用户名" prop="db_username" v-if="form.db_type !== 'sqlite3'">
               <el-input v-model="form.db_username"></el-input>
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="密码" prop="db_password">
+            <el-form-item label="密码" prop="db_password" v-if="form.db_type !== 'sqlite3'">
               <el-input v-model="form.db_password" type="password"></el-input>
             </el-form-item>
           </el-col>
         </el-row>
         <el-row>
           <el-col :span="12">
-            <el-form-item label="数据库名称" prop="db_name">
+            <el-form-item label="数据库名称" prop="db_name" v-if="form.db_type !== 'sqlite3'">
               <el-input v-model="form.db_name" placeholder="如果数据库不存在, 需提前创建"></el-input>
             </el-form-item>
           </el-col>
@@ -87,6 +83,13 @@ import installService from '../../api/install'
 export default {
   name: 'index',
   data () {
+    const validateConfirmPassword = (rule, value, callback) => {
+      if (value !== this.form.admin_password) {
+        callback(new Error('两次输入的密码不一致'))
+      } else {
+        callback()
+      }
+    }
     return {
       form: {
         db_type: 'mysql',
@@ -103,36 +106,47 @@ export default {
       },
       formRules: {
         db_type: [
-          {required: true, message: '请选择数据库', trigger: 'blur'}
+          { required: true, message: '请选择数据库', trigger: 'blur' }
         ],
         db_host: [
-          {required: true, message: '请输入数据库主机名', trigger: 'blur'}
+          { required: () => this.form.db_type !== 'sqlite3', message: '请输入数据库主机名', trigger: 'blur' }
         ],
         db_port: [
-          {type: 'number', required: true, message: '请输入数据库端口', trigger: 'blur'}
+          { type: 'number', required: () => this.form.db_type !== 'sqlite3', message: '请输入数据库端口', trigger: 'blur' }
         ],
         db_username: [
-          {required: true, message: '请输入数据库用户名', trigger: 'blur'}
+          { required: () => this.form.db_type !== 'sqlite3', message: '请输入数据库用户名', trigger: 'blur' }
         ],
         db_password: [
-          {required: true, message: '请输入数据库密码', trigger: 'blur'}
+          { required: () => this.form.db_type !== 'sqlite3', message: '请输入数据库密码', trigger: 'blur' }
         ],
         db_name: [
-          {required: true, message: '请输入数据库名称', trigger: 'blur'}
+          { required: true, message: '请输入数据库名称', trigger: 'blur' },
+          {
+            validator: (rule, value, callback) => {
+              if (this.form.db_type === 'sqlite3' && !value.endsWith('.db')) {
+                callback(new Error('SQLite数据库文件需以.db结尾'))
+              } else {
+                callback()
+              }
+            },
+            trigger: 'blur'
+          }
         ],
         admin_username: [
-          {required: true, message: '请输入管理员账号', trigger: 'blur'}
+          { required: true, message: '请输入管理员账号', trigger: 'blur' }
         ],
         admin_email: [
-          {type: 'email', required: true, message: '请输入管理员邮箱', trigger: 'blur'}
+          { type: 'email', required: true, message: '请输入管理员邮箱', trigger: 'blur' }
         ],
         admin_password: [
-          {required: true, message: '请输入管理员密码', trigger: 'blur'},
-          {min: 6, message: '长度至少6个字符', trigger: 'blur'}
+          { required: true, message: '请输入管理员密码', trigger: 'blur' },
+          { min: 6, message: '长度至少6个字符', trigger: 'blur' }
         ],
         confirm_admin_password: [
-          {required: true, message: '请再次输入管理员密码', trigger: 'blur'},
-          {min: 6, message: '长度至少6个字符', trigger: 'blur'}
+          { required: true, message: '请再次输入管理员密码', trigger: 'blur' },
+          { min: 6, message: '长度至少6个字符', trigger: 'blur' },
+          { validator: validateConfirmPassword, trigger: 'blur' }
         ]
       },
       dbList: [
@@ -143,20 +157,25 @@ export default {
         {
           value: 'postgres',
           label: 'PostgreSql'
+        },
+        {
+          value: 'sqlite3',
+          label: 'SQLite'
         }
       ],
       default_ports: {
         'mysql': 3306,
-        'postgres': 5432
+        'postgres': 5432,
+        'sqlite3': 0
       }
     }
   },
   methods: {
     update_port (dbType) {
-      console.log(dbType)
-      console.log(this.default_ports[dbType])
       this.form['db_port'] = this.default_ports[dbType]
-      console.log(this.form['db_port'])
+      if (dbType === 'sqlite3') {
+        this.form.db_name = 'data.db'
+      }
     },
     submit () {
       this.$refs['form'].validate((valid) => {
