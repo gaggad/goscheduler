@@ -35,7 +35,7 @@ func Register(ctx *macaron.Context, form RegisterForm) string {
 	expectedKey := auth.GetNodeRegisterKey()
 	// if expectedKey == "" {
 	// 	json := utils.JsonResponse{}
-	// 	return json.CommonFailure("节点注册功能未配置密钥，请先配置环境变量 GOSCHEDULER_NODE_REGISTER_KEY")
+	// 	return json.CommonFailure("节点注册功能未配置密钥，请先配置环境变量 NODE_REGISTER_KEY")
 	// }
 
 	if form.Key != expectedKey {

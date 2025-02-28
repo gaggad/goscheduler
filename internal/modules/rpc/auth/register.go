@@ -7,7 +7,7 @@ import (
 
 const (
 	// NodeRegisterKeyEnv 节点注册密钥的环境变量名
-	NodeRegisterKeyEnv = "GOSCHEDULER_NODE_REGISTER_KEY"
+	NodeRegisterKeyEnv = "NODE_REGISTER_KEY"
 )
 
 // GetNodeRegisterKey 获取节点注册密钥
