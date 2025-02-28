@@ -1,6 +1,6 @@
 module github.com/gaggad/goscheduler
 
-go 1.22
+go 1.23
 
 require (
 	github.com/Tang-RoseChild/mahonia v0.0.0-20131226213531-0eef680515cc
@@ -14,12 +14,13 @@ require (
 	github.com/golang/protobuf v1.5.4
 	github.com/jakecoffman/cron v0.0.0-20190106200828-7e2009c226a5
 	github.com/lib/pq v1.10.9
-	github.com/mattn/go-sqlite3 v1.14.16
+	github.com/mattn/go-sqlite3 v1.14.24
 	github.com/rakyll/statik v0.1.7
 	github.com/sirupsen/logrus v1.9.3
 	github.com/urfave/cli/v2 v2.27.5
 	golang.org/x/net v0.35.0
 	google.golang.org/grpc v1.70.0
+	google.golang.org/protobuf v1.36.5
 	gopkg.in/ini.v1 v1.67.0
 	gopkg.in/macaron.v1 v1.5.0
 	xorm.io/core v0.7.3
@@ -44,7 +45,6 @@ require (
 	golang.org/x/sys v0.30.0 // indirect
 	golang.org/x/text v0.22.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20241202173237-19429a94021a // indirect
-	google.golang.org/protobuf v1.35.2 // indirect
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
 	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect

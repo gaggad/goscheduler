@@ -8,8 +8,8 @@ build-race: enable-race build
 
 .PHONY: run
 run: build kill
-	./bin/goscheduler-node &
-	./bin/goscheduler web -e dev
+	./bin/goscheduler web -e dev & 
+	./bin/goscheduler-node -m 127.0.0.1:5920 --alias dev
 
 .PHONY: run-race
 run-race: enable-race run
@@ -60,7 +60,7 @@ run-vue:
 
 .PHONY: statik
 statik:
-	go get github.com/rakyll/statik
+	go install github.com/rakyll/statik
 	go generate ./...
 
 .PHONY: lint
