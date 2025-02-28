@@ -6,9 +6,11 @@ import (
 	"sync"
 	"time"
 
+	"google.golang.org/grpc/metadata"
+
 	"github.com/gaggad/goscheduler/internal/modules/app"
 	"github.com/gaggad/goscheduler/internal/modules/rpc/auth"
-	"github.com/gaggad/goscheduler/internal/modules/rpc/proto"
+	rpc "github.com/gaggad/goscheduler/internal/modules/rpc/proto"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/keepalive"
 )
@@ -81,6 +83,12 @@ func (p *GRPCPool) factory(addr string) (*Client, error) {
 	opts := []grpc.DialOption{
 		grpc.WithKeepaliveParams(keepAliveParams),
 		grpc.WithBackoffMaxDelay(backOffMaxDelay),
+		grpc.WithUnaryInterceptor(func(ctx context.Context, method string, req, reply interface{}, cc *grpc.ClientConn, invoker grpc.UnaryInvoker, opts ...grpc.CallOption) error {
+			// 添加密钥到metadata
+			md := metadata.New(map[string]string{"node-key": auth.GetNodeRegisterKey()})
+			newCtx := metadata.NewOutgoingContext(ctx, md)
+			return invoker(newCtx, method, req, reply, cc, opts...)
+		}),
 	}
 
 	if !app.Setting.EnableTLS {

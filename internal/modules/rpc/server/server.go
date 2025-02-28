@@ -7,6 +7,10 @@ import (
 	"syscall"
 	"time"
 
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/metadata"
+	"google.golang.org/grpc/status"
+
 	"github.com/gaggad/goscheduler/internal/modules/rpc/auth"
 	pb "github.com/gaggad/goscheduler/internal/modules/rpc/proto"
 	"github.com/gaggad/goscheduler/internal/modules/utils"
@@ -50,6 +54,23 @@ func (s Server) Run(ctx context.Context, req *pb.TaskRequest) (*pb.TaskResponse,
 	return resp, nil
 }
 
+// 创建一个拦截器用于验证密钥
+func authInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
+	expectedKey := auth.GetNodeRegisterKey()
+	md, ok := metadata.FromIncomingContext(ctx)
+	if !ok {
+		return nil, status.Errorf(codes.Unauthenticated, "missing credentials")
+	}
+
+	// 从metadata中获取密钥
+	keys := md.Get("node-key")
+	if len(keys) == 0 || keys[0] != expectedKey {
+		return nil, status.Errorf(codes.Unauthenticated, "invalid credentials")
+	}
+
+	return handler(ctx, req)
+}
+
 func Start(addr string, enableTLS bool, certificate auth.Certificate) {
 	l, err := net.Listen("tcp", addr)
 	if err != nil {
@@ -58,6 +79,7 @@ func Start(addr string, enableTLS bool, certificate auth.Certificate) {
 	opts := []grpc.ServerOption{
 		grpc.KeepaliveParams(keepAliveParams),
 		grpc.KeepaliveEnforcementPolicy(keepAlivePolicy),
+		grpc.UnaryInterceptor(authInterceptor),
 	}
 	if enableTLS {
 		tlsConfig, err := certificate.GetTLSConfigForServer()

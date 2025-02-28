@@ -100,6 +100,15 @@ func Store(ctx *macaron.Context, form HostForm) string {
 		return json.CommonFailure("主机名已存在")
 	}
 
+	// 在保存前先测试主机连通性
+	taskReq := &rpc.TaskRequest{}
+	taskReq.Command = testConnectionCommand
+	taskReq.Timeout = testConnectionTimeout
+	output, err := client.Exec(form.Name, form.Port, taskReq)
+	if err != nil {
+		return json.CommonFailure("主机连接失败-"+err.Error()+" "+output, err)
+	}
+
 	hostModel.Name = strings.TrimSpace(form.Name)
 	hostModel.Alias = strings.TrimSpace(form.Alias)
 	hostModel.Port = form.Port
