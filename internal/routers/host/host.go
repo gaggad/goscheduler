@@ -9,7 +9,7 @@ import (
 	"github.com/gaggad/goscheduler/internal/modules/logger"
 	"github.com/gaggad/goscheduler/internal/modules/rpc/client"
 	"github.com/gaggad/goscheduler/internal/modules/rpc/grpcpool"
-	"github.com/gaggad/goscheduler/internal/modules/rpc/proto"
+	rpc "github.com/gaggad/goscheduler/internal/modules/rpc/proto"
 	"github.com/gaggad/goscheduler/internal/modules/utils"
 	"github.com/gaggad/goscheduler/internal/routers/base"
 	"github.com/gaggad/goscheduler/internal/service"
@@ -104,6 +104,7 @@ func Store(ctx *macaron.Context, form HostForm) string {
 	hostModel.Alias = strings.TrimSpace(form.Alias)
 	hostModel.Port = form.Port
 	hostModel.Remark = strings.TrimSpace(form.Remark)
+	hostModel.Status = 1
 	isCreate := false
 	oldHostModel := new(models.Host)
 	err = oldHostModel.Find(int(id))

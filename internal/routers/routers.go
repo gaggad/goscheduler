@@ -102,6 +102,7 @@ func Register(m *macaron.Macaron) {
 		m.Get("/all", host.All)
 		m.Get("/ping/:id", host.Ping)
 		m.Post("/remove/:id", host.Remove)
+		m.Post("/register", binding.Bind(host.RegisterForm{}), host.Register) // 节点自动注册接口
 	})
 
 	// 管理
@@ -223,7 +224,7 @@ func userAuth(ctx *macaron.Context) {
 	if strings.HasPrefix(uri, "/v1") {
 		return
 	}
-	excludePaths := []string{"", "/user/login", "/install/status"}
+	excludePaths := []string{"", "/user/login", "/install/status", "/host/register"}
 	for _, path := range excludePaths {
 		if uri == path {
 			return
@@ -255,6 +256,7 @@ func urlAuth(ctx *macaron.Context) {
 		"/task/log",
 		"/host",
 		"/host/all",
+		"/host/register",
 		"/user/login",
 		"/user/editMyPassword",
 	}

@@ -9,7 +9,7 @@ build-race: enable-race build
 .PHONY: run
 run: build kill
 	./bin/goscheduler web -e dev & 
-	./bin/goscheduler-node -m 127.0.0.1:5920 --alias dev
+	./bin/goscheduler-node -m 127.0.0.1:5920
 
 .PHONY: run-race
 run-race: enable-race run

@@ -11,6 +11,7 @@ type Host struct {
 	Alias     string `json:"alias" xorm:"varchar(32) notnull default '' "`   // 主机别名
 	Port      int    `json:"port" xorm:"notnull default 5921"`               // 主机端口
 	Remark    string `json:"remark" xorm:"varchar(100) notnull default '' "` // 备注
+	Status    Status `json:"status" xorm:"tinyint notnull default 1"`        // 节点状态 0:离线 1:在线
 	BaseModel `json:"-" xorm:"-"`
 	Selected  bool `json:"-" xorm:"-"`
 }
@@ -26,7 +27,7 @@ func (host *Host) Create() (insertId int16, err error) {
 }
 
 func (host *Host) UpdateBean(id int16) (int64, error) {
-	return Db.ID(id).Cols("name,alias,port,remark").Update(host)
+	return Db.ID(id).Cols("name,alias,port,remark,ip,status").Update(host)
 }
 
 // 更新
@@ -53,6 +54,33 @@ func (host *Host) NameExists(name string, id int16) (bool, error) {
 
 	count, err := Db.Where("name = ? AND id != ?", name, id).Count(host)
 	return count > 0, err
+}
+
+// 通过IP查找主机ID
+func (host *Host) FindByName(name string) (int, error) {
+	has, err := Db.Where("name = ?", name).Get(host)
+	if err != nil {
+		return 0, err
+	}
+	if !has {
+		return 0, nil
+	}
+	return int(host.Id), nil
+}
+
+// 更新节点状态
+func (host *Host) UpdateStatus(id int, status Status) (int64, error) {
+	return Db.Table(host).ID(id).Update(CommonMap{"status": status})
+}
+
+// 设置节点在线
+func (host *Host) SetOnline(id int) (int64, error) {
+	return host.UpdateStatus(id, Enabled)
+}
+
+// 设置节点离线
+func (host *Host) SetOffline(id int) (int64, error) {
+	return host.UpdateStatus(id, Disabled)
 }
 
 func (host *Host) List(params CommonMap) ([]Host, error) {
@@ -90,5 +118,9 @@ func (host *Host) parseWhere(session *xorm.Session, params CommonMap) {
 	name, ok := params["Name"]
 	if ok && name.(string) != "" {
 		session.And("name = ?", name)
+	}
+	status, ok := params["Status"]
+	if ok && status.(int) > -1 {
+		session.And("status = ?", status)
 	}
 }
