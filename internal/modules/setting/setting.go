@@ -36,6 +36,7 @@ type Setting struct {
 
 	ConcurrencyQueue int
 	AuthSecret       string
+	NodeRegisterKey  string
 }
 
 // 读取配置
@@ -69,6 +70,7 @@ func Read(filename string) (*Setting, error) {
 	if s.AuthSecret == "" {
 		s.AuthSecret = utils.RandAuthToken()
 	}
+	s.NodeRegisterKey = section.Key("node_register_key").MustString("")
 
 	s.EnableTLS = section.Key("enable_tls").MustBool(false)
 	s.CAFile = section.Key("ca_file").MustString("")

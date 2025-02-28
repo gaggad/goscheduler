@@ -68,5 +68,5 @@ statik:
 
 .PHONY: clean
 clean:
-	rm bin/goscheduler
-	rm bin/goscheduler-node
+	rm -rf bin/goscheduler
+	rm -rf bin/goscheduler-node
