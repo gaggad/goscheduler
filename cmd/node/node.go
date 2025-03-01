@@ -159,7 +159,11 @@ func run(c *cli.Context) error {
 
 	// 自动注册到master节点
 	masterAddr := c.String("master-addr")
-	registerURL := fmt.Sprintf("http://%s/api/host/register", masterAddr)
+	// 处理masterAddr，确保包含正确的协议前缀
+	if !strings.HasPrefix(masterAddr, "http://") && !strings.HasPrefix(masterAddr, "https://") {
+		masterAddr = "http://" + masterAddr
+	}
+	registerURL := fmt.Sprintf("%s/api/host/register", masterAddr)
 
 	// 从环境变量获取注册密钥
 	registerKey := os.Getenv("NODE_REGISTER_KEY")
