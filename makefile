@@ -70,3 +70,13 @@ statik:
 clean:
 	rm -rf bin/goscheduler
 	rm -rf bin/goscheduler-node
+
+.PHONY: docker-build
+docker-build:
+	docker build -t goscheduler:latest -f Dockerfile.release .
+
+.PHONY: docker-push
+docker-push:
+	@read -p "Enter Docker registry URL (e.g., registry.example.com): " REGISTRY && \
+	docker tag goscheduler:latest $${REGISTRY}/goscheduler:latest && \
+	docker push $${REGISTRY}/goscheduler:latest

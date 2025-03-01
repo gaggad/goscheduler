@@ -1,22 +1,25 @@
-FROM golang:1.23-alpine as builder
+FROM golang:1.22-alpine AS builder
 
-RUN apk update \
-    && apk add --no-cache git ca-certificates make bash yarn nodejs
+RUN apk add --no-cache git ca-certificates make gcc musl-dev libc-dev linux-headers
 
+WORKDIR /build
+
+# 先复制依赖文件
+COPY go.mod go.sum ./
+
+# 预先下载依赖
 RUN go env -w GO111MODULE=on && \
-    go env -w GOPROXY=https://goproxy.cn,direct
+    go env -w GOPROXY=https://goproxy.cn,direct && \
+    go mod download
 
-WORKDIR /app
+# 复制源代码
+COPY . .
 
-RUN git clone https://github.com/gaggad/goscheduler.git \
-    && cd goscheduler \
-    && yarn config set ignore-engines true \
-    && make install-vue \
-    && make build-vue \
-    && make statik \
-    && CGO_ENABLED=0 make goscheduler
+# 编译两个二进制文件
+RUN CGO_ENABLED=1 go build -o goscheduler ./cmd/goscheduler && \
+    CGO_ENABLED=1 go build -o goscheduler-node ./cmd/node
 
-FROM alpine:3.12
+FROM alpine:3.7
 
 RUN apk add --no-cache ca-certificates tzdata \
     && addgroup -S app \
@@ -26,12 +29,17 @@ RUN cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
 
 WORKDIR /app
 
-COPY --from=builder /app/goscheduler/bin/goscheduler .
+# 复制两个二进制文件
+COPY --from=builder /build/goscheduler .
+COPY --from=builder /build/goscheduler-node .
 
-RUN chown -R app:app ./
+# 使用脚本来根据参数选择运行哪个程序
+COPY --from=builder /build/docker-entrypoint.sh .
+RUN chmod 755 /app/docker-entrypoint.sh && \
+    chown -R app:app ./
 
-EXPOSE 5920
+EXPOSE 5920 5921
 
 USER app
 
-ENTRYPOINT ["/app/goscheduler", "web"]
+ENTRYPOINT ["/app/docker-entrypoint.sh"]

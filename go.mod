@@ -1,6 +1,6 @@
 module github.com/gaggad/goscheduler
 
-go 1.23
+go 1.22
 
 require (
 	github.com/Tang-RoseChild/mahonia v0.0.0-20131226213531-0eef680515cc
