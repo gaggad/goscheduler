@@ -21,7 +21,7 @@ RUN CGO_ENABLED=1 go build -o goscheduler ./cmd/goscheduler && \
 
 FROM alpine:3.18
 
-RUN apk add --no-cache ca-certificates tzdata docker-cli \
+RUN apk add --no-cache ca-certificates bash tzdata docker-cli \
     && addgroup -S docker \
     && addgroup -S app \
     && adduser -S -g app app \
