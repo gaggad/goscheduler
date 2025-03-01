@@ -166,7 +166,7 @@ func run(c *cli.Context) error {
 	registerURL := fmt.Sprintf("%s/api/host/register", masterAddr)
 
 	// 从环境变量获取注册密钥
-	registerKey := os.Getenv("NODE_REGISTER_KEY")
+	registerKey := auth.GetNodeRegisterKey()
 	if registerKey == "" {
 		logrus.Warn("未设置节点注册密钥(NODE_REGISTER_KEY)，节点注册可能会失败")
 	}

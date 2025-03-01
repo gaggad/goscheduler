@@ -39,4 +39,5 @@ profile/*
 
 node_modules
 data.db
+data/data.db
 .vscode

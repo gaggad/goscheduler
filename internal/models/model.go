@@ -2,6 +2,7 @@ package models
 
 import (
 	"fmt"
+	"os"
 	"strings"
 	"time"
 
@@ -121,14 +122,22 @@ func getDbEngineDSN(setting *setting.Setting) string {
 			setting.Db.Database,
 			setting.Db.Charset)
 	case "postgres":
-		dsn = fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
+		dsn = fmt.Sprintf("host=%s port=%d dbname=%s sslmode=disable",
 			setting.Db.Host,
 			setting.Db.Port,
-			setting.Db.User,
-			setting.Db.Password,
 			setting.Db.Database)
+		if setting.Db.User != "" {
+			dsn += fmt.Sprintf(" user=%s", setting.Db.User)
+		}
+		if setting.Db.Password != "" {
+			dsn += fmt.Sprintf(" password=%s", setting.Db.Password)
+		}
 	case "sqlite3":
-		dsn = fmt.Sprintf("%s", setting.Db.Database)
+		// 确保SQLite数据库文件所在目录存在
+		if err := ensureSQLiteDirectoryExists(setting.Db.Database); err != nil {
+			logger.Error("创建SQLite数据库目录失败:", err)
+		}
+		dsn = setting.Db.Database
 	}
 
 	return dsn
@@ -144,4 +153,16 @@ func keepDbAlived(engine *xorm.Engine) {
 			logger.Infof("database ping: %s", err)
 		}
 	}
+}
+
+// 确保SQLite数据库文件所在目录存在
+func ensureSQLiteDirectoryExists(dbPath string) error {
+	// 获取数据库文件所在目录
+	dir := dbPath[:strings.LastIndex(dbPath, "/")]
+	// 如果目录为空，则不需要创建
+	if dir == "" {
+		return nil
+	}
+	// 创建目录，如果目录已存在则不会报错
+	return os.MkdirAll(dir, 0755)
 }

@@ -101,7 +101,7 @@ func Store(ctx *macaron.Context, form InstallForm) string {
 func writeConfig(form InstallForm) error {
 	dbName := form.DbName
 	if form.DbType == "sqlite3" {
-		dbName = "data.db"
+		dbName = "data/data.db"
 	}
 	dbConfig := []string{
 		"db.engine", form.DbType,
@@ -146,7 +146,7 @@ func testDbConnection(form InstallForm) error {
 	var s setting.Setting
 	s.Db.Engine = form.DbType
 	if form.DbType == "sqlite3" {
-		s.Db.Database = "data.db"
+		s.Db.Database = "data/data.db"
 	} else {
 		s.Db.Host = form.DbHost
 		s.Db.Port = form.DbPort

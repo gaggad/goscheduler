@@ -174,7 +174,7 @@ export default {
     update_port (dbType) {
       this.form['db_port'] = this.default_ports[dbType]
       if (dbType === 'sqlite3') {
-        this.form.db_name = 'data.db'
+        this.form.db_name = 'data/data.db'
       }
     },
     submit () {

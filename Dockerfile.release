@@ -19,11 +19,13 @@ COPY . .
 RUN CGO_ENABLED=1 go build -o goscheduler ./cmd/goscheduler && \
     CGO_ENABLED=1 go build -o goscheduler-node ./cmd/node
 
-FROM alpine:3.7
+FROM alpine:3.18
 
-RUN apk add --no-cache ca-certificates tzdata \
+RUN apk add --no-cache ca-certificates tzdata docker-cli \
+    && addgroup -S docker \
     && addgroup -S app \
-    && adduser -S -g app app
+    && adduser -S -g app app \
+    && addgroup app docker
 
 RUN cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
 
