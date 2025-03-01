@@ -73,7 +73,7 @@ clean:
 
 .PHONY: docker-build
 docker-build:
-	docker build -t goscheduler:latest -f Dockerfile.release .
+	docker build --platform linux/amd64 -t goscheduler:latest -f Dockerfile.release .
 
 .PHONY: docker-push
 docker-push:
